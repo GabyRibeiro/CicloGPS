@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
            @Override
            public void onLocationChanged(Location location) {
 
-               Toast.makeText(getApplicationContext(),"Funfou", Toast.LENGTH_LONG);
                double lat;
                double lon;
 
@@ -64,7 +63,14 @@ public class MainActivity extends AppCompatActivity {
                lon = location.getLongitude();
 
                Localizacao l = new Localizacao(lat, lon);
-               localizacoes.add(l);
+               localizacoes.add(new Localizacao(lat,lon));
+
+               if (localizacoes.size > 50){
+
+                   localizacoes.remove(0);
+
+               }
+
                adpt.notifyDataSetChanged();
            }
 
@@ -194,8 +200,8 @@ public class MainActivity extends AppCompatActivity {
                 ) == PackageManager.PERMISSION_GRANTED) {
                     locManager.requestLocationUpdates(
                             LocationManager.NETWORK_PROVIDER,
-                            0,
-                            0,
+                            1000 * 10,
+                            200,
                             locListener
                     );
 
