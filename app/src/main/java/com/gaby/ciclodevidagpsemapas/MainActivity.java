@@ -14,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,7 @@ import android.widget.Toolbar;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -40,39 +42,117 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-       recyclerView = findViewById(R.id.recyclerView);
-       localizacoes = new ArrayList<>();
-       adpt = new MeuAdapter(localizacoes)
+        recyclerView = findViewById(R.id.recyclerView);
+        localizacoes = new ArrayList<>();
+        adpt = new MeuAdapter(localizacoes);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+       recyclerView.setAdapter(adpt);
+
+       locManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+       locListener = new LocationListener() {
+           @Override
+           public void onLocationChanged(Location location) {
+
+               Toast.makeText(getApplicationContext(),"Funfou", Toast.LENGTH_LONG);
+               double lat;
+               double lon;
+
+               lat = location.getLatitude();
+               lon = location.getLongitude();
+
+               Localizacao l = new Localizacao(lat, lon);
+               localizacoes.add(l);
+               adpt.notifyDataSetChanged();
+           }
+
+           @Override
+           public void onStatusChanged(String provider, int status, Bundle extras) {
+
+           }
+
+           @Override
+           public void onProviderEnabled(String provider) {
+
+           }
+
+           @Override
+           public void onProviderDisabled(String provider) {
+
+           }
+       };
 
     }
 
     private class MeuViewHolder extends  RecyclerView.ViewHolder {
-
         TextView latTxtView;
         TextView longTxtView;
 
         public MeuViewHolder (View raiz) {
             super(raiz);
+
+            Toast.makeText(getApplicationContext(),"Funfou MeuViewHolder", Toast.LENGTH_LONG);
+
             latTxtView = raiz.findViewById(R.id.latTxtView);
             longTxtView = raiz.findViewById(R.id.longTxtView);
         }
     }
 
-    private class MeuAdapter extends RecyclerView.Adapter {
+
+    private class MeuAdapter extends RecyclerView.Adapter <MeuViewHolder>{
         List<Localizacao> localizacoes;
 
-            public MeuAdapter {
+            public MeuAdapter (List <Localizacao> localizacoes) {
+                Toast.makeText(getApplicationContext(),"MeuAAdapter", Toast.LENGTH_LONG);
                 this.localizacoes = localizacoes;
+        }
+
+        @NonNull
+        @Override
+        public MeuViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+
+            Toast.makeText(getApplicationContext(),"Antes de inflar", Toast.LENGTH_LONG);
+            Context context = viewGroup.getContext();
+            LayoutInflater inflater = LayoutInflater.from(context);
+
+            View raiz = inflater.inflate(R.layout.activity_list_item, viewGroup, false);
+            Toast.makeText(getApplicationContext(),"Ainda um pouco antes", Toast.LENGTH_LONG);
+            return new MeuViewHolder(raiz);
+
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull MeuViewHolder meuViewHolder, int i) {
+            Localizacao localizacao = localizacoes.get(i);
+            meuViewHolder.latTxtView.setText(
+                    Double.toString(
+                            localizacao.lat
+                    )
+            );
+            meuViewHolder.longTxtView.setText(
+                    Double.toString(
+                            localizacao.lon
+                    )
+            );
+        }
+
+        @Override
+        public int getItemCount() {
+            return localizacoes.size();
+
         }
     }
 
+    private class Localizacao {
+        double lat;
+        double lon;
 
-    public MeuViewHolder onCreateViewHolder(@NonNull ViewGroup, viewGroup, int i) {
-        Context context = viewGroup.getContext();
-        LayoutInflater inflater = LayoutInflater.from(context);
-
-        View raiz = inflater.inflate(R.layout.activity_list_item);
+        public Localizacao (double lat, double lon) {
+            this.lat = lat;
+            this.lon = lon;
+        }
     }
 
 
@@ -80,56 +160,57 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         if (ActivityCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED){
-            locationManager.
-                    requestLocationUpdates(
-                            LocationManager.GPS_PROVIDER,
-                            2000,
-                            5,
-                            locationListener
-                    );
-        }
-        else{
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(
                     this,
-                    new String []{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_CODE_GPS
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                    1000
             );
+        }
+        else{
+            locManager.requestLocationUpdates(
+                    LocationManager.NETWORK_PROVIDER,
+                    0,
+                    0,
+                    locListener
+            );
+
         }
 
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CODE_GPS){
+        if (requestCode == 1000) {
             if (grantResults.length > 0 &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                if (ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION) ==
-                        PackageManager.PERMISSION_GRANTED){
-                    locationManager.requestLocationUpdates(
-                            LocationManager.GPS_PROVIDER,
-                            2000,
-                            5,
-                            locationListener
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED) {
+                    locManager.requestLocationUpdates(
+                            LocationManager.NETWORK_PROVIDER,
+                            0,
+                            0,
+                            locListener
                     );
-                }
-            }
-            else{
-                Toast.makeText(this, getString(R.string.no_gps_no_app), Toast.LENGTH_SHORT).show();
-            }
-        }
 
+                }
+
+
+            }
+
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        locationManager.removeUpdates(locationListener);
+        locManager.removeUpdates(locListener);
     }
 
 }
