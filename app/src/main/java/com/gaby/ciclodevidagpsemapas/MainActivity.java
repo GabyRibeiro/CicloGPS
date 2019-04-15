@@ -66,9 +66,7 @@ public class MainActivity extends AppCompatActivity {
                localizacoes.add(new Localizacao(lat,lon));
 
                if (localizacoes.size > 50){
-
                    localizacoes.remove(0);
-
                }
 
                adpt.notifyDataSetChanged();
