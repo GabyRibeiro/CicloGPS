@@ -33,7 +33,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private List<Localizacao> localizacoes;
+    private List<Localizacao> localizacoes = new ArrayList<>();
     private MeuAdapter adpt;
     private LocationManager locManager;
     private LocationListener locListener;
