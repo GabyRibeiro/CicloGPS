@@ -92,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
         public MeuViewHolder (View raiz) {
             super(raiz);
 
-
             latTxtView = raiz.findViewById(R.id.latTxtView);
             longTxtView = raiz.findViewById(R.id.longTxtView);
         }
