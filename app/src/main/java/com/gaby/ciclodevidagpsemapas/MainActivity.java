@@ -88,6 +88,17 @@ public class MainActivity extends AppCompatActivity {
            }
        };
 
+        FloatingActionButton fab = findViewById(R.id.btnFloat);
+        btnFloat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view){
+                Intent intent =
+                        new Intent (getApplicationContext(),activity_list_item.class);
+                intent.putExtra("nome_fila", nomeFila);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private class MeuViewHolder extends  RecyclerView.ViewHolder {
@@ -97,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
         public MeuViewHolder (View raiz) {
             super(raiz);
 
-            Toast.makeText(getApplicationContext(),"Funfou MeuViewHolder", Toast.LENGTH_LONG);
 
             latTxtView = raiz.findViewById(R.id.latTxtView);
             longTxtView = raiz.findViewById(R.id.longTxtView);
@@ -109,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
         List<Localizacao> localizacoes;
 
             public MeuAdapter (List <Localizacao> localizacoes) {
-                Toast.makeText(getApplicationContext(),"MeuAAdapter", Toast.LENGTH_LONG);
                 this.localizacoes = localizacoes;
         }
 
@@ -117,12 +126,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public MeuViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
-            Toast.makeText(getApplicationContext(),"Antes de inflar", Toast.LENGTH_LONG);
             Context context = viewGroup.getContext();
             LayoutInflater inflater = LayoutInflater.from(context);
 
             View raiz = inflater.inflate(R.layout.activity_list_item, viewGroup, false);
-            Toast.makeText(getApplicationContext(),"Ainda um pouco antes", Toast.LENGTH_LONG);
             return new MeuViewHolder(raiz);
 
         }
